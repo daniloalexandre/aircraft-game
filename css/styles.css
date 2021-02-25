@@ -1,6 +1,6 @@
 @font-face {
   font-family: Titulo;
-  src: url(../fontes/ANODETONOONE.TTF);
+  src: url(../fonts/ANODETONOONE.TTF);
 }
 
 h1 {
@@ -22,7 +22,7 @@ h3 {
 }
 
 body {
-  background-image: url(../imgs/fundo.jpg);
+  background-image: url(../imgs/background.jpg);
 }
 
 #container {
@@ -33,15 +33,15 @@ body {
   margin-right: auto;
 }
 
-#fundoGame {
+#game-background {
   width: 950px;
   height: 630px;
-  background-image: url(../imgs/fundo_game.jpg);
+  background-image: url(../imgs/game_background.jpg);
   border-color: #fff;
   border-style: solid;
 }
 
-#placar {
+#score {
   width: 100%;
   height: 50px;
   position: absolute;
@@ -49,7 +49,7 @@ body {
   top: 0px;
 }
 
-#energia {
+#energybar {
   width: 126px;
   height: 44px;
   position: absolute;
@@ -57,7 +57,7 @@ body {
   left: 0px;
 }
 
-#fim {
+#gameover {
   width: 350px;
   height: 200px;
   background-color: #fff;
@@ -68,43 +68,43 @@ body {
   padding: 10px;
 }
 
-#jogador {
+#player {
   width: 110px;
   height: 67px;
   position: absolute;
   left: 8px;
   top: 300px;
-  background-image: url(../imgs/apache.png);
+  background-image: url(../imgs/player.png);
 }
 
-#inimigo1 {
+#enemy1 {
   width: 85px;
   height: 72px;
   position: absolute;
   left: 775px;
   top: 320px;
-  background-image: url(../imgs/inimigo1.png);
+  background-image: url(../imgs/enemy1.png);
 }
 
-#inimigo2 {
+#enemy2 {
   width: 176px;
   height: 83px;
   position: absolute;
   left: 775px;
   top: 535px;
-  background-image: url(../imgs/inimigo2.png);
+  background-image: url(../imgs/enemy2.png);
 }
 
-#amigo {
+#soldier {
   width: 30px;
   height: 41px;
   position: absolute;
   left: 50px;
   top: 565px;
-  background-image: url(../imgs/amigo.png);
+  background-image: url(../imgs/soldier.png);
 }
 
-#inicio {
+#menu {
   width: 350px;
   height: 200px;
   background-color: #fff;
@@ -115,15 +115,15 @@ body {
   padding: 10px;
 }
 
-#disparo {
+#shoot {
   width: 70px;
   height: 14px;
   position: absolute;
-  background-image: url(../imgs/disparo.png);
+  background-image: url(../imgs/shoot.png);
 }
 
-.anima1 {
-  background-image: url(../imgs/apache.png);
+.player-animation {
+  background-image: url(../imgs/player.png);
   animation: play 0.5s steps(2) infinite;
 
   -webkit-animation: play 0.5s steps(2) infinite;
@@ -177,8 +177,8 @@ body {
   }
 }
 
-.anima2 {
-  background-image: url(../imgs/inimigo1.png);
+.enemy1-animation {
+  background-image: url(../imgs/enemy1.png);
   animation: play2 0.2s steps(2) infinite;
 
   -webkit-animation: play2 0.2s steps(2) infinite;
@@ -232,8 +232,8 @@ body {
   }
 }
 
-.anima3 {
-  background-image: url(../imgs/amigo.png);
+.soldier-move-animation {
+  background-image: url(../imgs/soldier.png);
   animation: play3 0.9s steps(9) infinite;
 
   -webkit-animation: play3 0.9s steps(9) infinite;
@@ -287,11 +287,11 @@ body {
   }
 }
 
-.anima4 {
+.soldier-death-animation {
   width: 50px;
   height: 41px;
   position: absolute;
-  background-image: url(../imgs/amigo_morte.png);
+  background-image: url(../imgs/soldier_death.png);
   animation: play4 0.5s steps(7) infinite;
   -webkit-animation: play4 0.5s steps(7) infinite;
   -moz-animation: play4 0.5s steps(7) infinite;
@@ -344,11 +344,69 @@ body {
   }
 }
 
-.explosion {
+.enemy1-explosion {
+  width: 50px;
+  height: 90px;
+  position: absolute;
+  background-image: url(../imgs/enemy1_explosion.png);
+  animation: play2X 0.4s steps(8) infinite;
+
+  -webkit-animation: play2X 0.4s steps(8) infinite;
+  -moz-animation: play2X 0.4s steps(8) infinite;
+  -ms-animation: play2X 0.4s steps(8) infinite;
+  -o-animation: play2X 0.4s steps(8) infinite;
+}
+
+@keyframes play2X {
+  from {
+    background-position-x: 0px;
+  }
+  to {
+    background-position-x: -401px;
+  }
+}
+
+@-webkit-keyframes play2X {
+  from {
+    background-position-x: 0px;
+  }
+  to {
+    background-position-x: -401px;
+  }
+}
+
+@-moz-keyframes play2X {
+  from {
+    background-position-x: 0px;
+  }
+  to {
+    background-position-x: -401px;
+  }
+}
+
+@-ms-keyframes play2X {
+  from {
+    background-position-x: 0px;
+  }
+  to {
+    background-position-x: -401px;
+  }
+}
+
+@-o-keyframes play2X {
+  from {
+    background-position-x: 0px;
+  }
+  to {
+    background-position-x: -401px;
+  }
+}
+
+.enemy2-explosion {
   width: 167px;
   height: 188.55px;
   position: absolute;
-  background-image: url(../imgs/explosion.png);
+  background-image: url(../imgs/enemy2_explosion.png);
   animation: playX 0.2s steps(5) infinite, playY 0.6s steps(3) infinite;
 
   -webkit-animation: playX 0.2s steps(5) infinite, playY 0.6s steps(3) infinite;
@@ -444,63 +502,5 @@ body {
   }
   to {
     background-position-y: -566px;
-  }
-}
-
-.explosion2 {
-  width: 50px;
-  height: 90px;
-  position: absolute;
-  background-image: url(../imgs/explosion2.png);
-  animation: play2X 0.4s steps(8) infinite;
-
-  -webkit-animation: play2X 0.4s steps(8) infinite;
-  -moz-animation: play2X 0.4s steps(8) infinite;
-  -ms-animation: play2X 0.4s steps(8) infinite;
-  -o-animation: play2X 0.4s steps(8) infinite;
-}
-
-@keyframes play2X {
-  from {
-    background-position-x: 0px;
-  }
-  to {
-    background-position-x: -401px;
-  }
-}
-
-@-webkit-keyframes play2X {
-  from {
-    background-position-x: 0px;
-  }
-  to {
-    background-position-x: -401px;
-  }
-}
-
-@-moz-keyframes play2X {
-  from {
-    background-position-x: 0px;
-  }
-  to {
-    background-position-x: -401px;
-  }
-}
-
-@-ms-keyframes play2X {
-  from {
-    background-position-x: 0px;
-  }
-  to {
-    background-position-x: -401px;
-  }
-}
-
-@-o-keyframes play2X {
-  from {
-    background-position-x: 0px;
-  }
-  to {
-    background-position-x: -401px;
   }
 }

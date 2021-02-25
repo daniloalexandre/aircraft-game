@@ -1,402 +1,409 @@
-//Principais variáveis do jogo
+//Variables
 
-var jogo = {
+var game = {
   timer: null,
+  keyPressed: [],
 };
-var TECLA = {
+
+var KEYS = {
   SPACE: 32,
   LEFT: 37,
   UP: 38,
   RIGHT: 39,
   DOWN: 40,
 };
-var velocidade = 5;
-var posicaoY = parseInt(Math.random() * 334);
-var podeAtirar = true;
-var tempoDisparo = null;
-var tempoExplosao = null;
-var tempoExplosao2 = null;
-var tempoMorte = null;
-var fimdejogo = false;
-var pontos = 0;
-var salvos = 0;
-var perdidos = 0;
-var energiaAtual = 3;
 
-//Variáveis de Áudio
-var somDisparo = document.getElementById("somDisparo");
-var somExplosao = document.getElementById("somExplosao");
-var musica = document.getElementById("musica");
-var somGameover = document.getElementById("somGameover");
-var somPerdido = document.getElementById("somPerdido");
-var somResgate = document.getElementById("somResgate");
+var velocity = 5;
+var positionY = parseInt(Math.random() * 334);
+var canShoot = true;
+var shootTimer = null;
+var enemy1ExplosionTimer = null;
+var enemy2ExplosionTimer = null;
+var deathTimer = null;
+var gameover = false;
+var score = 0;
+var rescued = 0;
+var deaths = 0;
+var currentEnergy = 3;
+
+var shootSound = document.getElementById("shoot-sound");
+var explosionSound = document.getElementById("explosion-sound");
+var backgroundMusic = document.getElementById("background-music");
+var gameoverMusic = document.getElementById("gameover-music");
+var soldierDeathSound = document.getElementById("soldier-death-sound");
+var soldierRescueSound = document.getElementById("soldier_rescue-sound");
 
 function start() {
-  // Inicio da função start()
+  $("#menu").hide();
 
-  $("#inicio").hide();
-
-  //Música em loop
-  musica.addEventListener(
+  //Create a eventListener for game music loop
+  backgroundMusic.addEventListener(
     "ended",
     function () {
-      musica.currentTime = 0;
-      musica.play();
+      backgroundMusic.currentTime = 0;
+      backgroundMusic.play();
     },
     false
   );
-  musica.play();
+  backgroundMusic.play();
 
-  $("#fundoGame").append("<div id='jogador' class='anima1'></div>");
-  $("#fundoGame").append("<div id='inimigo1' class='anima2'></div>");
-  $("#fundoGame").append("<div id='inimigo2'></div>");
-  $("#fundoGame").append("<div id='amigo' class='anima3'></div>");
-  $("#fundoGame").append("<div id='placar'></div>");
-  $("#fundoGame").append("<div id='energia'></div>");
+  $("#game-background").append(
+    "<div id='player' class='player-animation'></div>"
+  );
+  $("#game-background").append(
+    "<div id='enemy1' class='enemy1-animation'></div>"
+  );
+  $("#game-background").append("<div id='enemy2'></div>");
+  $("#game-background").append(
+    "<div id='soldier' class='soldier-move-animation'></div>"
+  );
+  $("#game-background").append("<div id='score'></div>");
+  $("#game-background").append("<div id='energybar'></div>");
 
-  jogo.pressionou = [];
-
-  //Verifica se o usuário pressionou alguma tecla
-
+  //Check key pressed
   $(document).keydown(function (e) {
-    jogo.pressionou[e.which] = true;
+    game.keyPressed[e.which] = true;
   });
 
   $(document).keyup(function (e) {
-    jogo.pressionou[e.which] = false;
+    game.keyPressed[e.which] = false;
   });
 
   //Game Loop
-
-  jogo.timer = setInterval(loop, 30);
-} // Fim da função start
+  game.timer = setInterval(loop, 30);
+}
 
 function loop() {
-  movefundo();
-  movejogador();
-  moveinimigo1();
-  moveinimigo2();
-  moveamigo();
-  colisao();
-  placar();
-  energia();
-} // Fim da função loop()
+  moveBackground();
+  movePlayer();
+  moveEnemy1();
+  moveEnemy2();
+  moveSoldier();
+  checkCollision();
+  updateScore();
+  updateEnergy();
+}
 
-//Função que movimenta o fundo do jogo
+function moveBackground() {
+  var left = parseInt($("#game-background").css("background-position"));
+  $("#game-background").css("background-position", left - 1);
+}
 
-function movefundo() {
-  esquerda = parseInt($("#fundoGame").css("background-position"));
-  $("#fundoGame").css("background-position", esquerda - 1);
-} // fim da função movefundo()
-
-function movejogador() {
-  if (jogo.pressionou[TECLA.SPACE]) {
-    disparo();
+function movePlayer() {
+  if (game.keyPressed[KEYS.SPACE]) {
+    shoot();
   }
-  if (jogo.pressionou[TECLA.LEFT]) {
-    var esquerda = parseInt($("#jogador").css("left"));
-    if (esquerda - 10 >= 0) {
-      $("#jogador").css("left", esquerda - 10);
+  if (game.keyPressed[KEYS.LEFT]) {
+    var left = parseInt($("#player").css("left"));
+    if (left - 10 >= 0) {
+      $("#player").css("left", left - 10);
     }
   }
-  if (jogo.pressionou[TECLA.UP]) {
-    var topo = parseInt($("#jogador").css("top"));
-    if (topo - 10 >= 0) {
-      $("#jogador").css("top", topo - 10);
+  if (game.keyPressed[KEYS.UP]) {
+    var top = parseInt($("#player").css("top"));
+    if (top - 10 >= 0) {
+      $("#player").css("top", top - 10);
     }
   }
-  if (jogo.pressionou[TECLA.RIGHT]) {
-    var esquerda = parseInt($("#jogador").css("left"));
-    if (esquerda + 10 <= 800) {
-      $("#jogador").css("left", esquerda + 10);
+  if (game.keyPressed[KEYS.RIGHT]) {
+    var left = parseInt($("#player").css("left"));
+    if (left + 10 <= 800) {
+      $("#player").css("left", left + 10);
     }
   }
-  if (jogo.pressionou[TECLA.DOWN]) {
-    var topo = parseInt($("#jogador").css("top"));
-    if (topo + 10 <= 564) {
-      $("#jogador").css("top", topo + 10);
+  if (game.keyPressed[KEYS.DOWN]) {
+    var top = parseInt($("#player").css("top"));
+    if (top + 10 <= 564) {
+      $("#player").css("top", top + 10);
     }
   }
-} // fim da função movejogador()
+}
 
-function moveinimigo1() {
-  posicaoX = parseInt($("#inimigo1").css("left"));
-  $("#inimigo1").css("left", posicaoX - velocidade);
-  $("#inimigo1").css("top", posicaoY);
+function moveEnemy1() {
+  var positionX = parseInt($("#enemy1").css("left"));
+  $("#enemy1").css("left", positionX - velocity);
+  $("#enemy1").css("top", positionY);
 
-  if (posicaoX <= 0) {
-    respawninimigo1();
+  if (positionX <= 0) {
+    respawnEnemy1();
   }
-} //Fim da função moveinimigo1()
+}
 
-function moveinimigo2() {
-  posicaoX = parseInt($("#inimigo2").css("left"));
-  $("#inimigo2").css("left", posicaoX - 3);
+function moveEnemy2() {
+  var positionX = parseInt($("#enemy2").css("left"));
+  $("#enemy2").css("left", positionX - 3);
 
-  if (posicaoX <= 0) {
-    respawninimigo2();
+  if (positionX <= 0) {
+    respawnEnemy2();
   }
-} // Fim da função moveinimigo2()
+}
 
-function moveamigo() {
-  posicaoX = parseInt($("#amigo").css("left"));
-  $("#amigo").css("left", posicaoX + 1);
+function moveSoldier() {
+  var positionX = parseInt($("#soldier").css("left"));
+  $("#soldier").css("left", positionX + 1);
 
-  if (posicaoX > 906) {
-    $("#amigo").css("left", 0);
+  if (positionX > 906) {
+    $("#soldier").css("left", 0);
   }
-} // fim da função moveamigo()
+}
 
-function disparo() {
-  if (podeAtirar == true) {
-    podeAtirar = false;
-    somDisparo.play();
+function shoot() {
+  if (canShoot == true) {
+    canShoot = false;
+    shootSound.play();
 
-    topo = parseInt($("#jogador").css("top"));
-    posicaoX = parseInt($("#jogador").css("left"));
-    tiroX = posicaoX + 110;
-    topoTiro = topo + 37;
-    $("#fundoGame").append("<div id='disparo'></div");
-    $("#disparo").css("top", topoTiro);
-    $("#disparo").css("left", tiroX);
+    playerTop = parseInt($("#player").css("top"));
+    playerPositionX = parseInt($("#player").css("left"));
+    shootPositionX = playerPositionX + 110;
+    shootTop = playerTop + 37;
+    $("#game-background").append("<div id='shoot'></div");
+    $("#shoot").css("top", shootTop);
+    $("#shoot").css("left", shootPositionX);
 
-    tempoDisparo = window.setInterval(executaDisparo, 30);
-  } //Fecha podeAtirar
-} // Fecha disparo()
-
-function executaDisparo() {
-  posicaoX = parseInt($("#disparo").css("left"));
-  $("#disparo").css("left", posicaoX + 15);
-
-  if (posicaoX > 900) {
-    dismissdisparo();
+    shootTimer = window.setInterval(moveShoot, 30);
   }
-} // Fecha executaDisparo()
+}
 
-function colisao() {
-  var colisao1 = $("#jogador").collision($("#inimigo1"));
-  var colisao2 = $("#disparo").collision($("#inimigo1"));
-  var colisao3 = $("#jogador").collision($("#inimigo2"));
-  var colisao4 = $("#disparo").collision($("#inimigo2"));
-  var colisao5 = $("#jogador").collision($("#amigo"));
-  var colisao6 = $("#inimigo2").collision($("#amigo"));
+function moveShoot() {
+  var positioX = parseInt($("#shoot").css("left"));
+  $("#shoot").css("left", positioX + 15);
 
-  if (colisao1.length > 0) {
-    somExplosao.play();
+  if (positioX > 900) {
+    dismissShoot();
+  }
+}
+
+function checkCollision() {
+  var collision1 = $("#player").collision($("#enemy1"));
+  var collision2 = $("#shoot").collision($("#enemy1"));
+  var collision3 = $("#player").collision($("#enemy2"));
+  var collision4 = $("#shoot").collision($("#enemy2"));
+  var collision5 = $("#player").collision($("#soldier"));
+  var collision6 = $("#enemy2").collision($("#soldier"));
+
+  if (collision1.length > 0) {
+    explosionSound.play();
     subEnergy();
-    inimigo1X = parseInt($("#inimigo1").css("left"));
-    inimigo1Y = parseInt($("#inimigo1").css("top"));
-    explosao2(inimigo1X, inimigo1Y);
-    respawninimigo1();
+    var enemyX = parseInt($("#enemy1").css("left"));
+    var enemyY = parseInt($("#enemy1").css("top"));
+    explodesEnemy1(enemyX, enemyY);
+    respawnEnemy1();
   }
 
-  if (colisao2.length > 0) {
-    somExplosao.play();
+  if (collision2.length > 0) {
+    explosionSound.play();
     addPoints(100);
     increaseLevel();
-    inimigo1X = parseInt($("#inimigo1").css("left"));
-    inimigo1Y = parseInt($("#inimigo1").css("top"));
-    explosao2(inimigo1X, inimigo1Y);
-    dismissdisparo();
-    respawninimigo1();
+    var enemyX = parseInt($("#enemy1").css("left"));
+    var enemyY = parseInt($("#enemy1").css("top"));
+    explodesEnemy1(enemyX, enemyY);
+    dismissShoot();
+    respawnEnemy1();
   }
 
-  if (colisao3.length > 0) {
-    somExplosao.play();
+  if (collision3.length > 0) {
+    explosionSound.play();
     subEnergy();
-    inimigo2X = parseInt($("#inimigo2").css("left"));
-    inimigo2Y = parseInt($("#inimigo2").css("top"));
-    explosao1(inimigo2X, inimigo2Y);
-    respawninimigo2();
+    var enemyX = parseInt($("#enemy2").css("left"));
+    var enemyY = parseInt($("#enemy2").css("top"));
+    explodesEnemy2(enemyX, enemyY);
+    respawnEnemy2();
   }
 
-  if (colisao4.length > 0) {
-    somExplosao.play();
+  if (collision4.length > 0) {
+    explosionSound.play();
     addPoints(50);
     increaseLevel();
-    inimigo2X = parseInt($("#inimigo2").css("left"));
-    inimigo2Y = parseInt($("#inimigo2").css("top"));
-    explosao1(inimigo2X, inimigo2Y);
-    dismissdisparo();
-    respawninimigo2();
+    var enemyX = parseInt($("#enemy2").css("left"));
+    var enemyY = parseInt($("#enemy2").css("top"));
+    explodesEnemy2(enemyX, enemyY);
+    dismissShoot();
+    respawnEnemy2();
   }
 
-  if (colisao5.length > 0) {
-    somResgate.play();
+  if (collision5.length > 0) {
+    soldierRescueSound.play();
     addRescued();
-    respawnamigo();
+    respawnSoldier();
   }
 
-  if (colisao6.length > 0) {
-    somPerdido.play();
-    addLost();
-    amigoX = parseInt($("#amigo").css("left"));
-    amigoY = parseInt($("#amigo").css("top"));
-    morteamigo(amigoX, amigoY);
-    respawnamigo();
+  if (collision6.length > 0) {
+    soldierDeathSound.play();
+    addDeath();
+    var soldierX = parseInt($("#soldier").css("left"));
+    var soldierY = parseInt($("#soldier").css("top"));
+    killSoldier(soldierX, soldierY);
+    respawnSoldier();
   }
-} //Fim da função colisao()
-
-function explosao1(inimigoX, inimigoY) {
-  $("#fundoGame").append("<div id='explosion' class='explosion'></div>");
-  var div = $("#explosion");
-  div.css("top", inimigoY - 60);
-  div.css("left", inimigoX + 30);
-
-  tempoExplosao = window.setInterval(removeExplosao, 600);
-} // Fim da função explosao1()
-
-function explosao2(inimigoX, inimigoY) {
-  $("#fundoGame").append("<div id='explosion2' class='explosion2'></div>");
-  var div = $("#explosion2");
-  div.css("top", inimigoY - 30);
-  div.css("left", inimigoX);
-
-  tempoExplosao2 = window.setInterval(removeExplosao2, 400);
-} // Fim da função explosao2()
-
-function morteamigo(amigoX, amigoY) {
-  $("#fundoGame").append("<div id='morteAmigo' class='anima4'></div");
-  $("#morteAmigo").css("top", amigoY);
-  $("#morteAmigo").css("left", amigoX);
-  tempoMorte = window.setInterval(removeMorte, 500);
 }
 
-function removeExplosao() {
-  var div = $("#explosion");
+function explodesEnemy1(enemyX, enemyY) {
+  $("#game-background").append(
+    "<div id='enemy1-explosion' class='enemy1-explosion'></div>"
+  );
+  var div = $("#enemy1-explosion");
+  div.css("top", enemyY - 30);
+  div.css("left", enemyX);
+
+  enemy1ExplosionTimer = window.setInterval(dissmissExplosion1, 400);
+}
+
+function dissmissExplosion1() {
+  var div = $("#enemy1-explosion");
   div.remove();
-  window.clearInterval(tempoExplosao);
-  tempoExplosao = null;
+  window.clearInterval(enemy1ExplosionTimer);
+  enemy1ExplosionTimer = null;
 }
 
-function removeExplosao2() {
-  var div = $("#explosion2");
+function explodesEnemy2(enemyX, enemyY) {
+  $("#game-background").append(
+    "<div id='enemy2-explosion' class='enemy2-explosion'></div>"
+  );
+  var div = $("#enemy2-explosion");
+  div.css("top", enemyY - 60);
+  div.css("left", enemyX + 30);
+
+  enemy2ExplosionTimer = window.setInterval(dismissExplosion2, 600);
+}
+
+function dismissExplosion2() {
+  var div = $("#enemy2-explosion");
   div.remove();
-  window.clearInterval(tempoExplosao2);
-  tempoExplosao2 = null;
+  window.clearInterval(enemy2ExplosionTimer);
+  enemy2ExplosionTimer = null;
 }
 
-function removeMorte() {
-  $("#morteAmigo").remove();
-  window.clearInterval(tempoMorte);
-  tempoMorte = null;
+function killSoldier(soldierX, soldierY) {
+  $("#game-background").append(
+    "<div id='soldier-death-animation' class='soldier-death-animation'></div"
+  );
+  $("#soldier-death-animation").css("top", soldierY);
+  $("#soldier-death-animation").css("left", soldierX);
+  deathTimer = window.setInterval(dissmissSoldierDeath, 500);
 }
 
-function respawninimigo1() {
-  if (!fimdejogo) {
-    posicaoY = parseInt(Math.random() * 320);
-    $("#inimigo1").css("left", 775);
-    $("#inimigo1").css("top", posicaoY);
+function dissmissSoldierDeath() {
+  $("#soldier-death-animation").remove();
+  window.clearInterval(deathTimer);
+  deathTimer = null;
+}
+
+function respawnEnemy1() {
+  if (!gameover) {
+    positionY = parseInt(Math.random() * 320);
+    $("#enemy1").css("left", 775);
+    $("#enemy1").css("top", positionY);
   }
 }
 
-function respawninimigo2() {
-  $("#inimigo2").remove();
+function respawnEnemy2() {
+  $("#enemy2").remove();
   var time = window.setInterval(() => {
     window.clearInterval(time);
     time = null;
 
-    if (!fimdejogo) {
-      $("#fundoGame").append("<div id='inimigo2'></div>");
+    if (!gameover) {
+      $("#game-background").append("<div id='enemy2'></div>");
     }
   }, 5000);
 }
 
-function respawnamigo() {
-  $("#amigo").remove();
+function respawnSoldier() {
+  $("#soldier").remove();
   var time = window.setInterval(() => {
     window.clearInterval(time);
     time = null;
 
-    if (!fimdejogo) {
-      $("#fundoGame").append("<div id='amigo' class='anima3'></div>");
+    if (!gameover) {
+      $("#game-background").append(
+        "<div id='soldier' class='soldier-move-animation'></div>"
+      );
     }
   }, 6000);
 }
 
-function dismissdisparo() {
-  window.clearInterval(tempoDisparo);
-  tempoDisparo = null;
-  $("#disparo").remove();
-  podeAtirar = true;
+function dismissShoot() {
+  window.clearInterval(shootTimer);
+  shootTimer = null;
+  $("#shoot").remove();
+  canShoot = true;
 }
 
 function addPoints(points) {
-  pontos += points;
+  score += points;
 }
 
 function addRescued() {
-  salvos++;
+  rescued++;
 }
 
-function addLost() {
-  perdidos++;
+function addDeath() {
+  deaths++;
 }
 
-function placar() {
-  $("#placar").html(
+function updateScore() {
+  $("#score").html(
     "<h2> Pontos: " +
-      pontos +
+      score +
       " Salvos: " +
-      salvos +
+      rescued +
       " Perdidos: " +
-      perdidos +
+      deaths +
       "</h2>"
   );
-} //fim da função placar()
-
-function subEnergy() {
-  energiaAtual--;
 }
 
-function energia() {
-  if (energiaAtual == 3) {
-    $("#energia").css("background-image", "url(imgs/energia3.png)");
+function subEnergy() {
+  currentEnergy--;
+}
+
+function updateEnergy() {
+  if (currentEnergy == 3) {
+    $("#energybar").css("background-image", "url(imgs/energy3.png)");
   }
 
-  if (energiaAtual == 2) {
-    $("#energia").css("background-image", "url(imgs/energia2.png)");
+  if (currentEnergy == 2) {
+    $("#energybar").css("background-image", "url(imgs/energy2.png)");
   }
 
-  if (energiaAtual == 1) {
-    $("#energia").css("background-image", "url(imgs/energia1.png)");
+  if (currentEnergy == 1) {
+    $("#energybar").css("background-image", "url(imgs/energy1.png)");
   }
 
-  if (energiaAtual == 0) {
-    $("#energia").css("background-image", "url(imgs/energia0.png)");
+  if (currentEnergy == 0) {
+    $("#energybar").css("background-image", "url(imgs/energy0.png)");
 
     gameOver();
   }
 } // Fim da função energia()
 
 function increaseLevel() {
-  velocidade += 0.3;
+  velocity += 0.3;
 }
 
-//Função GAME OVER
 function gameOver() {
-  fimdejogo = true;
-  musica.pause();
-  somGameover.play();
+  gameover = true;
+  backgroundMusic.pause();
+  gameoverMusic.play();
 
-  window.clearInterval(jogo.timer);
-  jogo.timer = null;
+  window.clearInterval(game.timer);
+  game.timer = null;
 
-  $("#jogador").remove();
-  $("#inimigo1").remove();
-  $("#inimigo2").remove();
-  $("#amigo").remove();
+  $("#player").remove();
+  $("#enemy1").remove();
+  $("#enemy2").remove();
+  $("#soldier").remove();
 
-  $("#fundoGame").append("<div id='fim'></div>");
+  $("#game-background").append("<div id='gameover'></div>");
 
-  $("#fim").html(
+  $("#gameover").html(
     "<h1> Game Over </h1><p>Sua pontuação foi: " +
-      pontos +
+      score +
       "</p>" +
-      "<div id='reinicia' onClick=reiniciaJogo()><h3>Jogar Novamente</h3></div>"
+      "<div id='reinicia' onClick=reloadGame()><h3>Jogar Novamente</h3></div>"
   );
-} // Fim da função gameOver();
+}
 
-function reiniciaJogo() {
+function reloadGame() {
   location.reload();
 }
